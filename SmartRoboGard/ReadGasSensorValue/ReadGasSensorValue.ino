@@ -1,11 +1,15 @@
-
+ 
 #define BUZZER_PIN 3
+#define GAS_SENSOR A0
+int sensorValue = 0;
+int gas_detected_value = 330;
 
 void alertSound()
 {
+  Serial.println("gas detected");
   analogWrite(BUZZER_PIN, 50);
-  delay(500);
-  analogWrite(BUZZER_PIN, 0);    
+  delay(100);
+  analogWrite(BUZZER_PIN, 0);
 }
 
 void sendAlert()
@@ -21,9 +25,9 @@ void setup()
 
 void loop() 
 {
-  int sensorValue = analogRead(A0);
+  sensorValue = analogRead(GAS_SENSOR);
   Serial.println(sensorValue);
-  if (sensorValue > 200)
+  if (sensorValue > gas_detected_value)
   {
     sendAlert();
   }
