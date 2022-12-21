@@ -1,4 +1,3 @@
- 
 #define BUZZER_PIN 3
 #define GAS_SENSOR A0
 int sensorValue = 0;
