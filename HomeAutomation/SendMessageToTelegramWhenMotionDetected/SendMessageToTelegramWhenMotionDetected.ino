@@ -10,7 +10,7 @@ const char* ssid = "legend hacker ✔";
 const char* password = "123456789@fmn";
 
 
-#define BOTtoken "5869156460:AAFaRyswvEhZpS7f6jLAaoCIp6vK67E9j8E"
+#define BOTtoken "5921188279:AAFJh0V53tPxDi68_1vl8EnaX5IoT_LNhCQ"
 #define CHAT_ID "5266762989"
 
 #define Sensor D0

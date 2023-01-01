@@ -6,7 +6,7 @@
 
 
 LiquidCrystal_I2C lcd (0x27, 16, 2);
-const char* ssid = "legend hacker ✔";
+const char* ssid = "legend hacker";
 const char* password = "123456789@fmn";
 
 
@@ -84,10 +84,19 @@ void clean_enviroment(){
   lcd.print("Enviroment is clean now.");
 }
 
-void sendSMS(String message){
+void sendSMSOnline(String message){
   Serial.println("your message is on the way to sent your phone ---> ");
   Serial.println(message);
   bot.sendMessage(CHAT_ID, message, "");
+}
+
+void sendSMSOffline(String message){
+  
+}
+
+void sendSMS(String message){
+  sendSMSOnline(message);
+//  sendSMSOffline(message);
 }
 
 void send_alert(String detection){

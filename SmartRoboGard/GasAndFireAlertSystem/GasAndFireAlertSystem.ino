@@ -1,5 +1,5 @@
 #define SIGNAL_LIGHT 13
-#define FLAMER_SENSOR 8
+#define FLAMER_SENSOR 4
 #define BUZZER_SENSOR 3
 #define GAS_SENSOR A0
 int gas_detected_value = 300;
