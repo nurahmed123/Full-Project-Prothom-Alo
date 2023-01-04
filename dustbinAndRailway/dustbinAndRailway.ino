@@ -1,10 +1,11 @@
-#include <Servo.h>   //servo library
+#include <Servo.h> //includes the servo library
+Servo myservo;
+Servo firstRailServo;
+Servo secoundRailServo;
 
-// defines pins numbers
-const int trigPin = 9;
-const int echoPin = 10;
-const int buzzer = 11;
-const int ledPin = 13;
+#define echopin 10 // echo pin
+#define trigpin 9 // Trigger pin
+
 const int servoPin = 7;
 const int firstRailGetServo = 4;
 const int secoundRailGetServo = 5;
@@ -15,86 +16,86 @@ bool getOperation = true;
 int trainDetection = LOW;
 int trainCrossed = LOW;
 
+int set_cm = 20;
 
-// defines variables
-long duration;
-int distance;
-int safetyDistance;
+long ultra_time;
+long dis_cm;
 
-Servo myservo;
-Servo firstRailServo;
-Servo secoundRailServo;
+void setup(){ // put your setup code here, to run once
 
-void setup() {
-  pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
-  pinMode(echoPin, INPUT); // Sets the echoPin as an Input
-  pinMode(buzzer, OUTPUT);
-  pinMode(ledPin, OUTPUT);
-  pinMode(secoundIR, INPUT);
-  pinMode(firstIR, INPUT);
-  Serial.begin(9600); // Starts the serial communication
+  Serial.begin(9600);// initialize serial communication at 9600 bits per second:
+  
   myservo.attach(servoPin);
+  myservo.write(0);
+
   firstRailServo.attach(firstRailGetServo);
   secoundRailServo.attach(secoundRailGetServo);
   
+  pinMode (trigpin, OUTPUT); // declare ultrasonic sensor Trigger pin as Output
+  pinMode (echopin, INPUT);  // declare ultrasonic sensor Echo pin as input
+  pinMode(secoundIR, INPUT);
+  pinMode(firstIR, INPUT);
+
   firstRailServo.write(180);
   secoundRailServo.write(180);
+  
+  delay(1000); // Waiting for a while
+}
+
+void up(){
+  myservo.write(20);
+  delay(50);
+  myservo.write(30);
+  delay(50);
+  myservo.write(40);
+  delay(50);
+  myservo.write(50);
+  delay(50);
+  myservo.write(80);
+  delay(50);  
+  myservo.write(110);
+  delay(3000); 
 }
 
 void getOpen(){
-//  Serial.println("get open");
+  Serial.println("get open");
   firstRailServo.write(180);
   secoundRailServo.write(180);
 }
 
 void getClose(){
-//  Serial.println("get close");
+  Serial.println("get close");
   firstRailServo.write(0);
   secoundRailServo.write(0);
 }
 
 void down(){
-//  Serial.println("down function is called");
   myservo.write(0);
 }
 
-void up(){
-//  Serial.println("up function is called");
-  myservo.write(180);
-}
-
-
-void loop() {
-  // Clears the trigPin
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
+void loop(){ 
+  //*************************
+  ultra_read();
+  //*************************
   
-  // Sets the trigPin on HIGH state for 10 micro seconds
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
+  Serial.print("Dis :");Serial.println(dis_cm); 
   
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  duration = pulseIn(echoPin, HIGH);
-  
-  // Calculating the distance
-  distance= duration*0.034/2;
-  
-  safetyDistance = distance;
-  if (safetyDistance <= 10){
+  if(dis_cm<set_cm){
     up();
   }
-  else{
+  
+  if(dis_cm>set_cm){
     down();
   }
   
-  // Prints the distance on the Serial Monitor
-  //Serial.print("Distance: ");
-  //Serial.println(distance);
+  delay(100); 
+
+
+  // ----------------- train section -------------
   
   trainDetection = digitalRead(firstIR);
-//  Serial.print("train enter: ");
-//  Serial.println(trainDetection);
+  Serial.print("train enter: ");
+  Serial.println(trainDetection);
   trainCrossed = digitalRead(secoundIR);
   Serial.print("train gone: ");
   Serial.println(trainCrossed);
@@ -110,4 +111,14 @@ void loop() {
   }else{
     getClose();
   }
+}
+
+//**********************ultra_read****************************
+void ultra_read(){
+  digitalWrite(trigpin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigpin, HIGH);
+  delayMicroseconds(10);
+  ultra_time = pulseIn (echopin, HIGH);
+  dis_cm =  ultra_time / 29 / 2; 
 }

@@ -3,7 +3,9 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
+#include <SoftwareSerial.h>
 
+SoftwareSerial SIM900(D5, D6); // gsm module connected here
 
 LiquidCrystal_I2C lcd (0x27, 16, 2);
 const char* ssid = "legend hacker";
@@ -31,7 +33,9 @@ UniversalTelegramBot bot(BOTtoken, client);
 
 
 void setup() {
-  Serial.begin(115200);
+//  Serial.begin(115200);
+  Serial.begin(9600);
+  SIM900.begin(9600);
   lcd.init();
   lcd.backlight();
   Wire.begin(D2, D1);
@@ -91,18 +95,25 @@ void sendSMSOnline(String message){
 }
 
 void sendSMSOffline(String message){
-  
+  Serial.println("offline message is called");
+  SIM900.print("AT+CMGF=1\r");                     // AT command to send SMS message
+  delay(1000);
+  SIM900.println("AT + CMGS = \"+8801575056952\"");  // recipient's mobile number, in international format
+
+  SIM900.println(message);                         // message to send
+  SIM900.println((char)26);                        // End AT command with a ^Z, ASCII code 26
+  SIM900.println();
 }
 
 void sendSMS(String message){
-  sendSMSOnline(message);
-//  sendSMSOffline(message);
+//  sendSMSOnline(message);
+  sendSMSOffline(message);
 }
 
 void send_alert(String detection){
   Serial.println("current detection is ---> ");
   Serial.println(detection);
-  digitalWrite(Buzzer, HIGH);
+  analogWrite(Buzzer, 200);
   
   if(detection == "fire"){
     Serial.println("Fire detected");
