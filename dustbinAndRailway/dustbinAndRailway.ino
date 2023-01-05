@@ -15,6 +15,8 @@ const int IRMatchingValue = LOW;
 bool getOperation = true;
 int trainDetection = LOW;
 int trainCrossed = LOW;
+int getOpenPoint = 140;
+int getClosePoint = 360;
 
 int set_cm = 20;
 
@@ -36,8 +38,8 @@ void setup(){ // put your setup code here, to run once
   pinMode(secoundIR, INPUT);
   pinMode(firstIR, INPUT);
 
-  firstRailServo.write(180);
-  secoundRailServo.write(180);
+  firstRailServo.write(getOpenPoint);
+  secoundRailServo.write(getOpenPoint);
   
   delay(1000); // Waiting for a while
 }
@@ -59,14 +61,14 @@ void up(){
 
 void getOpen(){
   Serial.println("get open");
-  firstRailServo.write(180);
-  secoundRailServo.write(180);
+  firstRailServo.write(getOpenPoint);
+  secoundRailServo.write(getOpenPoint);
 }
 
 void getClose(){
   Serial.println("get close");
-  firstRailServo.write(0);
-  secoundRailServo.write(0);
+  firstRailServo.write(getClosePoint);
+  secoundRailServo.write(getClosePoint);
 }
 
 void down(){

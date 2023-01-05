@@ -5,7 +5,8 @@ const int trigPin = 9;
 const int echoPin = 10;
 const int buzzer = 11;
 const int ledPin = 13;
-int servoPin = 7;
+int servoPin = 5;
+int val;
 
 // defines variables
 long duration;
@@ -24,13 +25,13 @@ myservo.attach(servoPin);
 }
 
 void down(){
-  Serial.println("down function is called");
-  myservo.write(0);
+//  Serial.println("down function is called");
+//  myservo.write(0);
 }
 
 void up(){
-  Serial.println("up function is called");
-  myservo.write(180);
+//  Serial.println("up function is called");
+//  myservo.write(180);
 }
 
 
@@ -57,6 +58,13 @@ if (safetyDistance <= 15){
 else{
   down();
 }
+
+val = Serial.parseInt();
+if(val > 0){
+  
+  myservo.write(val);
+}
+
 
 // Prints the distance on the Serial Monitor
 //Serial.print("Distance: ");
