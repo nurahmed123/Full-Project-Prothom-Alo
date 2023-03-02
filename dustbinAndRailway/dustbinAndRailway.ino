@@ -18,7 +18,7 @@ int trainCrossed = LOW;
 int getOpenPoint = 140;
 int getClosePoint = 360;
 
-int set_cm = 20;
+int set_cm = 15;
 
 long ultra_time;
 long dis_cm;
@@ -56,6 +56,8 @@ void up(){
   myservo.write(80);
   delay(50);  
   myservo.write(110);
+  delay(50);
+  myservo.write(180);
   delay(3000); 
 }
 
@@ -69,6 +71,7 @@ void getClose(){
   Serial.println("get close");
   firstRailServo.write(getClosePoint);
   secoundRailServo.write(getClosePoint);
+  delay(3000);
 }
 
 void down(){
@@ -82,13 +85,21 @@ void loop(){
   
   Serial.print("Dis :");Serial.println(dis_cm); 
   
-  if(dis_cm<set_cm){
-    up();
-  }
+//  if(dis_cm<set_cm){
+//    getOpen();
+//  }
   
-  if(dis_cm>set_cm){
-    down();
+  if(dis_cm > set_cm){
+    getOpen();
   }
+  else{
+    getClose();
+  }
+//  getOpen();
+  
+//  if(dis_cm==0){
+//    dis_cm = set_cm+2;
+//  }
   
   delay(100); 
 
@@ -109,9 +120,9 @@ void loop(){
   }
   
   if (getOperation){
-    getOpen();
+//    getOpen();
   }else{
-    getClose();
+//    getClose();
   }
 }
 

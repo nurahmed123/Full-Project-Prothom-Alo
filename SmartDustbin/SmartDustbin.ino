@@ -5,7 +5,13 @@ const int trigPin = 9;
 const int echoPin = 10;
 const int buzzer = 11;
 const int ledPin = 13;
-int servoPin = 5;
+
+const int ledPin1 = 2;
+const int ledPin2 = 3;
+const int ledPin3 = 4;
+const int ledPin4 = 5;
+const int ledPin5 = 6;
+int servoPin = 7;
 int val;
 
 // defines variables
@@ -20,18 +26,25 @@ pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
 pinMode(echoPin, INPUT); // Sets the echoPin as an Input
 pinMode(buzzer, OUTPUT);
 pinMode(ledPin, OUTPUT);
+
+pinMode(ledPin1, OUTPUT);
+pinMode(ledPin2, OUTPUT);
+pinMode(ledPin3, OUTPUT);
+pinMode(ledPin4, OUTPUT);
+pinMode(ledPin5, OUTPUT);
 Serial.begin(9600); // Starts the serial communication
 myservo.attach(servoPin);
 }
 
 void down(){
-//  Serial.println("down function is called");
-//  myservo.write(0);
+  Serial.println("down function is called");
+  myservo.write(0);
 }
 
 void up(){
-//  Serial.println("up function is called");
-//  myservo.write(180);
+  Serial.println("up function is called");
+  myservo.write(180);
+  delay(3000);
 }
 
 
@@ -53,10 +66,18 @@ distance= duration*0.034/2;
 
 safetyDistance = distance;
 if (safetyDistance <= 15){
-  up();
+  digitalWrite(ledPin1, HIGH);
+  digitalWrite(ledPin2, HIGH);
+  digitalWrite(ledPin3, HIGH);
+  digitalWrite(ledPin4, HIGH);
+  digitalWrite(ledPin5, HIGH);
 }
 else{
-  down();
+  digitalWrite(ledPin1, LOW);
+  digitalWrite(ledPin2, LOW);
+  digitalWrite(ledPin3, LOW);
+  digitalWrite(ledPin4, LOW);
+  digitalWrite(ledPin5, LOW);
 }
 
 val = Serial.parseInt();
