@@ -2,12 +2,11 @@ import cv2
 from cvzone.HandTrackingModule import HandDetector
 import time
 import serial
-import cvzone
 
 detector = HandDetector(maxHands=1, detectionCon=0.8)
 video = cv2.VideoCapture(0)
-arduino=serial.Serial("COM4", 9600, 1)
-# sendData = cvzone.SerialObject("COM4", 9600, 1)
+arduino=serial.Serial(port='COM5',baudrate=9600,timeout=.1)
+# sendData = cvzone.SerialObject("COM4", 9600, .1)
 
 while True:
     _, img = video.read()
@@ -18,7 +17,8 @@ while True:
         if lmlist:
             fingerup = detector.fingersUp(lmlist)
             print(fingerup)
-            sendData.sendData(fingerup)
+            # arduino.write(bytes(fingerup,'utf-8'))
+            arduino.write(fingerup)
             if fingerup == [0, 0, 0, 0, 0]:
                 # arduino.write(bytes('0','utf-8'))
                 print("0")
