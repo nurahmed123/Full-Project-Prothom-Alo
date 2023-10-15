@@ -1,102 +1,184 @@
-/*********
-  Rui Santos
-  Complete project details at https://RandomNerdTutorials.com
-  
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files.
-  
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-*********/
 
-// Import required libraries
-#ifdef ESP32
-  #include <WiFi.h>
-  #include <ESPAsyncWebServer.h>
-  #include <SPIFFS.h>
-#else
-  #include <Arduino.h>
-  #include <ESP8266WiFi.h>
-  #include <Hash.h>
-  #include <ESPAsyncTCP.h>
-  #include <ESPAsyncWebServer.h>
-  #include <FS.h>
-#endif
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
+#include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include <Hash.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <FS.h>
+const char *ssid = "morseddj";
+const char *password = "123456789@fmn";
 
-/*#include <SPI.h>
-#define BME_SCK 18
-#define BME_MISO 19
-#define BME_MOSI 23
-#define BME_CS 5*/
-
-Adafruit_BME280 bme; // I2C
-//Adafruit_BME280 bme(BME_CS); // hardware SPI
-//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
-
-// Replace with your network credentials
-const char* ssid = "morseddj";
-const char* password = "123456789@fmn";
+const int first_ir = D6;
+const int secound_ir = D7;
+int overPassingNum;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
-
-String readBME280Temperature() {
-  // Read temperature as Celsius (the default)
-  float t = bme.readTemperature();
-  // Convert temperature to Fahrenheit
-  //t = 1.8 * t + 32;
-  if (isnan(t)) {    
-    Serial.println("Failed to read from BME280 sensor!");
-    return "";
-  }
-  else {
-    Serial.println(t);
-    return String(t);
-  }
+String overPassing() {
+  int first_ir_val = digitalRead(first_ir);
+  int secound_ir_val = digitalRead(secound_ir);
+  overPassingNum = secound_ir_val + secound_ir_val;
+  return String(overPassingNum);
 }
 
-String readBME280Humidity() {
-  float h = bme.readHumidity();
-  if (isnan(h)) {
-    Serial.println("Failed to read from BME280 sensor!");
-    return "";
-  }
-  else {
-    Serial.println(h);
-    return String(h);
-  }
-}
+//web page
+const char index_html[] PROGMEM = R"webpage(
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <style>
+    body {
+      min-width: 310px;
+    	max-width: 800px;
+    	height: 400px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-family: Arial;
+      font-size: 2.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>ESP Weather Station</h2>
+  <div id="chart-temperature" class="container"></div>
+  <div id="chart-humidity" class="container"></div>
+  <div id="chart-pressure" class="container"></div>
+</body>
+<script>
+var chartT = new Highcharts.Chart({
+  chart:{ renderTo : 'chart-temperature' },
+  title: { text: 'BME280 Temperature' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#059e8a' }
+  },
+  xAxis: { type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Temperature (Celsius)' }
+    //title: { text: 'Temperature (Fahrenheit)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartT.series[0].data.length > 40) {
+        chartT.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartT.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/temperature", true);
+  xhttp.send();
+}, 30000 ) ;
 
-String readBME280Pressure() {
-  float p = bme.readPressure() / 100.0F;
-  if (isnan(p)) {
-    Serial.println("Failed to read from BME280 sensor!");
-    return "";
-  }
-  else {
-    Serial.println(p);
-    return String(p);
-  }
-}
+var chartH = new Highcharts.Chart({
+  chart:{ renderTo:'chart-humidity' },
+  title: { text: 'BME280 Humidity' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Humidity (%)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartH.series[0].data.length > 40) {
+        chartH.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartH.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/humidity", true);
+  xhttp.send();
+}, 30000 ) ;
 
-void setup(){
+var chartP = new Highcharts.Chart({
+  chart:{ renderTo:'chart-pressure' },
+  title: { text: 'BME280 Pressure' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#18009c' }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Pressure (hPa)' }
+  },
+  credits: { enabled: false }
+});
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+      //console.log(this.responseText);
+      if(chartP.series[0].data.length > 40) {
+        chartP.series[0].addPoint([x, y], true, true, true);
+      } else {
+        chartP.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+  };
+  xhttp.open("GET", "/pressure", true);
+  xhttp.send();
+}, 30000 ) ;
+</script>
+</html>
+)webpage";
+
+void setup() {
   // Serial port for debugging purposes
   Serial.begin(115200);
-  
-  bool status; 
-  // default settings
-  // (you can also pass in a Wire library object like &Wire2)
-  status = bme.begin(0x76);  
-  if (!status) {
-    Serial.println("Could not find a valid BME280 sensor, check wiring!");
-    while (1);
-  }
+
+  pinMode(first_ir, INPUT);
+  pinMode(secound_ir, INPUT);
 
   // Initialize SPIFFS
-  if(!SPIFFS.begin()){
+  if (!SPIFFS.begin()) {
     Serial.println("An Error has occurred while mounting SPIFFS");
     return;
   }
@@ -112,23 +194,22 @@ void setup(){
   Serial.println(WiFi.localIP());
 
   // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html");
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send_P(200, "text/html", index_html);
   });
-  server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", readBME280Temperature().c_str());
+  server.on("/temperature", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send_P(200, "text/plain", overPassing().c_str());
   });
-  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", readBME280Humidity().c_str());
+  server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send_P(200, "text/plain", overPassing().c_str());
   });
-  server.on("/pressure", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send_P(200, "text/plain", readBME280Pressure().c_str());
+  server.on("/pressure", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send_P(200, "text/plain", overPassing().c_str());
   });
 
   // Start server
   server.begin();
 }
- 
-void loop(){
-  
+
+void loop() {
 }
