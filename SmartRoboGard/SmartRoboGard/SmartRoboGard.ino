@@ -62,7 +62,7 @@ const int PWMLightChannel = 3;
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-const char* ssid     = "Robo Gurd By Nur's Team";
+const char* ssid     = "Robo Gurd By Nur";
 const char* password = "123456789@fmn";
 
 AsyncWebServer server(80);
@@ -73,7 +73,7 @@ uint32_t cameraClientId = 0;
 const char* htmlHomePage PROGMEM = R"HTMLHOMEPAGE(
 <!DOCTYPE html>
 <html>
-
+ 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <style>

@@ -33,8 +33,8 @@ void setup(){ // put your setup code here, to run once
   firstRailServo.attach(firstRailGetServo);
   secoundRailServo.attach(secoundRailGetServo);
   
-  pinMode (trigpin, OUTPUT); // declare ultrasonic sensor Trigger pin as Output
-  pinMode (echopin, INPUT);  // declare ultrasonic sensor Echo pin as input
+  pinMode(trigpin, OUTPUT); // declare ultrasonic sensor Trigger pin as Output
+  pinMode(echopin, INPUT);  // declare ultrasonic sensor Echo pin as input
   pinMode(secoundIR, INPUT);
   pinMode(firstIR, INPUT);
 

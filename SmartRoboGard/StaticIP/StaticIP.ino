@@ -4,7 +4,7 @@ void setup() {
   Serial.begin(115200);
  
   WiFi.mode(WIFI_STA);
-  WiFi.begin("Your_SSID", "Your_PASSWORD");
+  WiFi.begin("legend hacker", "123456789@fmn");
  
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
